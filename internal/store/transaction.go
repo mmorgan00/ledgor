@@ -1,5 +1,7 @@
+package store
+
 type Transaction struct {
-     id string
-     idempotencyKey string
-     amount uint64
+	id             string
+	idempotencyKey string
+	amount         uint64
 }
