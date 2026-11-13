@@ -1,15 +1,18 @@
 package httpapi
 
 import (
-	"fmt"
-	"html"
+	"github.com/mmorgan00/ledgor/internal/store"
 	"net/http"
 )
 
-func Build(mux *http.ServeMux) {
-	mux.HandleFunc("/", hello)
+type Server struct {
+	store *store.Store
 }
 
-func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+func New(st *store.Store) *Server {
+	return &Server{store: st}
+}
+
+func (s *Server) Build(mux *http.ServeMux) {
+	BuildTransactionRouter(s, mux)
 }

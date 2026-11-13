@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/mmorgan00/ledgor/internal/httpapi"
 	"github.com/mmorgan00/ledgor/internal/store"
@@ -11,14 +12,17 @@ import (
 
 func main() {
 	fmt.Println("Starting ledger")
-	_, err := store.Connect(os.Getenv("DATABASE_URL"))
+
+	ctx := context.Background()
+	st, err := store.New(ctx, os.Getenv("DATABASE_URL")) // New, not Connect
 	if err != nil {
-		fmt.Println("Failed to connect %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to connect: %v", err) // Fatalf formats
 	}
-	fmt.Println("Connected to DB")
+	defer st.Close(ctx)
+
 	mux := http.NewServeMux()
-	httpapi.Build(mux)
+	httpapi.New(st).Build(mux)
+
 	srv := &http.Server{Addr: ":5000", Handler: mux}
 	log.Fatal(srv.ListenAndServe())
 }
